@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace DinnerWebScraper
@@ -11,8 +12,8 @@ namespace DinnerWebScraper
     {
         private const string BaseUrl = "https://nozwideleccatering.pl/";
 
-        public HtmlWeb Web { get; private set; }
-        public HtmlDocument Doc { get; private set; }
+        private HtmlWeb Web;
+        private HtmlDocument Doc;
 
         public NozIWidelecScraper()
         {
@@ -34,9 +35,14 @@ namespace DinnerWebScraper
             .Replace("&nbsp;", "")
             .Replace("\n", "");
 
-        private string GetSoup() => Doc.QuerySelector("#custom_post_widget-34")
-            .InnerText
-            .Split(' ')[0];
+        private string GetSoup()
+        {
+            var soup = Doc.QuerySelector("#custom_post_widget-34")
+                .InnerText
+                .Split('\n')[0];
+
+            return Regex.Replace(soup, @"[^\u0000-\u007F]+", string.Empty);
+        }
 
         private string GetDinners()
         {
