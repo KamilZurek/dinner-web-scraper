@@ -14,6 +14,7 @@ namespace DinnerWebScraper
 
         private HtmlWeb Web;
         private HtmlDocument Doc;
+        private DateTime Date;
 
         public NozIWidelecScraper()
         {
@@ -21,37 +22,55 @@ namespace DinnerWebScraper
             this.Doc = Web.Load(BaseUrl);
         }
 
-        public void GetAllDinnersForToday()
+        public List<Dinner> GetAllDinnersForToday()
         {
-            var date = GetDate();
-            var soup = GetSoup();
-            var dinners = GetDinners();
+            var dinners = new List<Dinner>();
 
-            Console.WriteLine($"Dzień: {date}\nZupa: {soup}\nDrugie danie:\n{dinners}");
+            this.Date = GetDate();
+            dinners.Add(GetSoup());
+            dinners.AddRange(GetMainCourses());
+
+            return dinners;
         }
 
-        private string GetDate() => Doc.QuerySelector("#custom_post_widget-36")
-            .InnerText
-            .Replace("&nbsp;", "")
-            .Replace("\n", "");
+        private DateTime GetDate()
+        {
+            string fullDate = Doc.QuerySelector("#custom_post_widget-36")
+                                .InnerText
+                                .Replace("&nbsp;", "")
+                                .Replace("\n", "");
 
-        private string GetSoup()
+            string shortDate = fullDate.Substring(fullDate.IndexOf(' ') + 1).Replace("r", "");
+
+            return DateTime.Parse(shortDate);
+        }
+
+        private Dinner GetSoup()
         {
             var soup = Doc.QuerySelector("#custom_post_widget-34")
                 .InnerText
                 .Split('\n')[0];
 
-            return Regex.Replace(soup, @"[^\u0000-\u007F]+", string.Empty);
+            return new Dinner(this.Date, DinnerType.Soup, this.GetSoupName(soup)); 
         }
 
-        private string GetDinners()
+        private string GetSoupName(string soup) => Regex.Replace(soup, @"[^\u0020-\u007E\u00A0-\u00FF\u0100-\u017F]", string.Empty);
+
+        private List<Dinner> GetMainCourses()
         {
+            var mainCourses = new List<Dinner>();
+
             var dinners = Doc.QuerySelector("#custom_post_widget-24")
                 .QuerySelectorAll("p")
                 .Where(p => char.IsDigit(char.Parse(p.InnerText.Substring(0, 1))))
                 .Select(n => n.InnerText);
 
-            return string.Join('\n', dinners);
+            foreach (var dinner in dinners)
+            {
+                mainCourses.Add(new Dinner(this.Date, DinnerType.MainCourse, dinner));
+            }
+
+            return mainCourses;
         }
     }
 }
