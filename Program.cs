@@ -5,11 +5,17 @@
         static void Main(string[] args)
         {
             var scraper = new NozIWidelecScraper();
-            var dinners = scraper.GetAllDinnersForToday();
+            var date = scraper.GetDate();
 
-            SimpleSQLDataWriter.InsertDinnersIntoDB(dinners);
+            if (!SimpleSQLDataReader.IsDinnerDateAlreadyInDB(date))
+            {
+                var dinners = scraper.GetAllDinnersForToday();
+                SimpleSQLDataWriter.InsertDinnersIntoDB(dinners);
+                SimpleSQLDataWriter.InsertDinnerDateIntoDB(date);
+            }
+            
             SimpleSQLDataReader.GetDinnersFromDB();
-            //dodac tabelke logi +_ check czy pobrano
+            //check all once again
         }
     }
 }

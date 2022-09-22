@@ -5,18 +5,51 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.Configuration;
+using System.Data;
 
 namespace DinnerWebScraper
 {
-    class SimpleSQLDataReader
+    class SimpleSQLDataReader : SimpleSQLData
     {
-        public static void GetDinnersFromDB()
+        public static bool IsDinnerDateAlreadyInDB(DateTime date)
         {
-            string queryString = "SELECT * from dbo.Dinners Order By ID";
-            string connectionString = ConfigurationManager.ConnectionStrings["DinnersManagerConnStr"].ConnectionString;
-            
-            using (var connection = new SqlConnection(connectionString))
+            using (var connection = new SqlConnection(ConnectionString))
             {
+                string queryString = "SELECT * from dbo.DinnersStatus WHERE DinnersDate = @date";
+                var command = new SqlCommand(queryString, connection);
+                AddQueryParametersForSelectDinnerStatus(date, command);
+
+                try
+                {
+                    connection.Open();
+
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        return true;
+                    }
+
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+
+            return false;
+        }
+
+        private static void AddQueryParametersForSelectDinnerStatus(object value, SqlCommand command)
+        {
+            command.Parameters.Add(CreateQueryParameter("@date", SqlDbType.DateTime, value));
+        }
+
+        public static void GetDinnersFromDB()
+        {           
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                string queryString = "SELECT * from dbo.Dinners Order By ID";
                 var command = new SqlCommand(queryString, connection);
 
                 try

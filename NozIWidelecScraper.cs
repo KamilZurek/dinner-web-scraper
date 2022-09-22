@@ -33,7 +33,7 @@ namespace DinnerWebScraper
             return dinners;
         }
 
-        private DateTime GetDate()
+        public DateTime GetDate()
         {
             string fullDate = Doc.QuerySelector("#custom_post_widget-36")
                                 .InnerText

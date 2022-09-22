@@ -9,21 +9,19 @@ using System.Threading.Tasks;
 
 namespace DinnerWebScraper
 {
-    class SimpleSQLDataWriter
+    class SimpleSQLDataWriter : SimpleSQLData
     {
         public static void InsertDinnersIntoDB(List<Dinner> dinners)
         {
-            string connectionString = ConfigurationManager.ConnectionStrings["DinnersManagerConnStr"].ConnectionString;
-
-            using (var connection = new SqlConnection(connectionString))
+            using (var connection = new SqlConnection(ConnectionString))
             {
                 try
                 {
                     connection.Open();
 
-                    foreach(var dinner in dinners)
+                    foreach (var dinner in dinners)
                     {
-                        string queryString = $@"INSERT INTO[dbo].[Dinners] ([Type], [Name] ,[Date]) 
+                        string queryString = $@"INSERT INTO [dbo].[Dinners] ([Type], [Name] ,[Date]) 
                             VALUES (@type, @name, @date)";
 
                         var command = new SqlCommand(queryString, connection);
@@ -41,20 +39,38 @@ namespace DinnerWebScraper
 
         private static void AddQueryParametersForInsertDinners(Dinner dinner, SqlCommand command)
         {
-            command.Parameters.Add(CreateQueryParameterForInsertDinners("@type", SqlDbType.NVarChar, dinner.Type.GetName()));
-            command.Parameters.Add(CreateQueryParameterForInsertDinners("@name", SqlDbType.NVarChar, dinner.Name));
-            command.Parameters.Add(CreateQueryParameterForInsertDinners("@date", SqlDbType.DateTime, dinner.Date));
+            command.Parameters.Add(CreateQueryParameter("@type", SqlDbType.NVarChar, dinner.Type.GetName()));
+            command.Parameters.Add(CreateQueryParameter("@name", SqlDbType.NVarChar, dinner.Name));
+            command.Parameters.Add(CreateQueryParameter("@date", SqlDbType.DateTime, dinner.Date));
         }
 
-        private static SqlParameter CreateQueryParameterForInsertDinners(string name, SqlDbType type, object value, ParameterDirection direction = ParameterDirection.Input)
+        public static void InsertDinnerDateIntoDB(DateTime date)
         {
-            return new SqlParameter
+            using (var connection = new SqlConnection(ConnectionString))
             {
-                ParameterName = name,
-                SqlDbType = type,
-                Direction = direction,
-                Value = value
-            };
+                try
+                {
+                    connection.Open();
+
+                    string queryString = $@"INSERT INTO [dbo].[DinnersStatus] ([DinnersDate], [Downloaded]) 
+                            VALUES (@dinnerDate, @dateNow)";
+
+                    var command = new SqlCommand(queryString, connection);
+                    AddQueryParametersForInsertDinnerDate(date, command);
+
+                    int result = command.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+        }
+
+        private static void AddQueryParametersForInsertDinnerDate(DateTime date, SqlCommand command)
+        {
+            command.Parameters.Add(CreateQueryParameter("@dinnerDate", SqlDbType.DateTime, date));
+            command.Parameters.Add(CreateQueryParameter("@dateNow", SqlDbType.DateTime, DateTime.Now));
         }
     }
 }
