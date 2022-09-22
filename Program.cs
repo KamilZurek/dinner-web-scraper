@@ -1,4 +1,6 @@
-﻿namespace DinnerWebScraper
+﻿using DinnerWebScraper.SQL;
+
+namespace DinnerWebScraper
 {
     class Program
     {

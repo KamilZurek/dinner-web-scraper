@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DinnerWebScraper
+namespace DinnerWebScraper.SQL
 {
     public class SimpleSQLData
     {

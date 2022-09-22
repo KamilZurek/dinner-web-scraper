@@ -7,7 +7,7 @@ using System.Data.SqlClient;
 using System.Configuration;
 using System.Data;
 
-namespace DinnerWebScraper
+namespace DinnerWebScraper.SQL
 {
     class SimpleSQLDataReader : SimpleSQLData
     {
@@ -46,7 +46,7 @@ namespace DinnerWebScraper
         }
 
         public static void GetDinnersFromDB()
-        {           
+        {
             using (var connection = new SqlConnection(ConnectionString))
             {
                 string queryString = "SELECT * from dbo.Dinners Order By ID";
