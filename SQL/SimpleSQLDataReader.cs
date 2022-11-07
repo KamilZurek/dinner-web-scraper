@@ -56,7 +56,7 @@ namespace DinnerWebScraper.SQL
                 {
                     connection.Open();
 
-                    Console.WriteLine("{0}\t{1}\t{2}\t{3}\n", "ID", "Typ", "Nazwa dania", "Data");
+                    Console.WriteLine("Odczyt SQL:\n{0}\t{1}\t{2}\t{3}\n", "ID", "Typ", "Nazwa dania", "Data");
 
                     var reader = command.ExecuteReader();
                     while (reader.Read())
@@ -70,6 +70,8 @@ namespace DinnerWebScraper.SQL
                 {
                     Console.WriteLine(ex.Message);
                 }
+
+                Console.WriteLine();
             }
         }
     }

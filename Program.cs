@@ -1,4 +1,5 @@
-﻿using DinnerWebScraper.SQL;
+﻿using DinnerWebScraper.EntityFramework;
+using DinnerWebScraper.SQL;
 
 namespace DinnerWebScraper
 {
@@ -17,6 +18,7 @@ namespace DinnerWebScraper
             }
             
             SimpleSQLDataReader.GetDinnersFromDB();
+            EFDataReader.GetDinnersFromDB();
             //check all once again
         }
     }
